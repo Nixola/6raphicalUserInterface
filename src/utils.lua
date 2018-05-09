@@ -16,11 +16,14 @@ utils.merge = function(...)
 			local newValue
 			if type(vv) == "table" then
 				local tables2 = {}
-				for i, v in ipairs(tables) do
+				for i = 1, table.maxn(tables) do
+					local v = tables[i]
+					if not v then goto continue end
 					if v[ii] then
 						assert(type(v[ii]) == "table", "Field " .. tostring(ii) .. " is both table and non-table")
 						tables2[#tables2 + 1] = v[ii]
 					end
+					::continue::
 				end
 				newValue = utils.merge(unpack(tables2))
 			else
@@ -38,15 +41,24 @@ end
 utils.checkSchema = function(schema, t)
 	for i, v in pairs(schema) do
 		if type(t[i]) ~= type(v) and not (type(t[i]) == "nil" and type(v) == "boolean") then
-			return false
+			print(type(t[i]), type(v))
+			return nil, "Unmatched schema in key " .. i
 		end
 		if type(v) == "table" then
-			if not utils.checkSchema(v, t[i]) then
-				return false
+			local valid, err = utils.checkSchema(v, t[i])
+			if not valid then
+				return nil, "Unmatched schema in key " .. i .. "." .. err
 			end
 		end
 	end
 	return true
 end
+
+
+utils.font = setmetatable({}, {__index = function(self, k)
+	assert(tonumber(k), "Attempt to query a non-numeric font size")
+	self[k] = love.graphics.newFont(k)
+	return self[k]
+end})
 
 return utils

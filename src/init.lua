@@ -17,11 +17,6 @@ for i, fileName in ipairs(modules) do
 		error("Failed to load GUI module " .. fileName .. ": " .. module)
 	end
 
-	res, module = pcall(module, guiFolder) -- will probably need more arguments
-	if not res then
-		error("Failed to execute GUI module " .. fileName .. ": " .. module)
-	end
-
 	module.parent = gui
 
 	gui[moduleName] = module
@@ -117,7 +112,7 @@ end
 gui.add = function(self, moduleName, ...)
 	local module
 	if type(moduleName) == "string" then
-		assert(self[moduleName], "Attempt to add unexisting object - " .. module)
+		assert(self[moduleName], "Attempt to add unexisting object - " .. moduleName)
 		module = self[moduleName]
 	elseif type(moduleName) == "table" then
 		assert(moduleName.new, "Attempt to add unsupported module")

@@ -4,8 +4,8 @@ guiFolder = guiFolder:match("^(.+)%.modules.-$")
 
 local utils = require(guiFolder .. ".utils")
 
-local schema = {
-	line = {
+backpanel.styleSchema = {
+	border = {
 		style = "string",
 		width = 1,
 		color = {1, 1, 1}
@@ -23,8 +23,7 @@ backpanel.new = function(self, x, y, width, height, style)
 	t.height = height
 
 	t.style = utils.merge(self.style, style)
-	--assert(utils.checkSchema(schema, t.style), "Malformed style") --need to check schema
-
+	assert(utils.checkSchema(self.styleSchema, t.style))
 	return t
 end
 
@@ -35,10 +34,10 @@ backpanel.draw = function(self)
 	love.graphics.setColor(style.background)
 	love.graphics.rectangle("fill", self.x, self.y, self.width, self.height, style.rx, style.ry, style.segments)
 	
-	love.graphics.setLineStyle(style.line.style)
-	love.graphics.setLineWidth(style.line.width)
+	love.graphics.setLineStyle(style.border.style)
+	love.graphics.setLineWidth(style.border.width)
 
-	love.graphics.setColor(style.line.color)
+	love.graphics.setColor(style.border.color)
 	love.graphics.rectangle("line", self.x, self.y, self.width, self.height, style.rx, style.ry, style.segments)
 end
 
