@@ -1,5 +1,17 @@
 local utils = {}
 
+local utf8 = require "utf8"
+utils.utf8 = require((...):gsub("utils", "utf8"))
+
+utils.clamp = function(min, x, max)
+	if x < min then
+		return min
+	elseif x > max then
+		return max
+	end
+	return x
+end
+
 utils.merge = function(...)
 	
 	local tables = {...}
@@ -68,5 +80,21 @@ utils.font = setmetatable({}, {__index = function(self, k)
 	self[k] = love.graphics.newFont(k)
 	return self[k]
 end})
+
+
+utils.utf8.getCharAtX = function(font, string, mousex)
+	local prevw = 0
+	local c = 0
+	for i = 1, utf8.len(string) do
+		local s = utils.utf8.sub(string, 1, i)
+		local w = font:getWidth(s)
+		if w > mousex then
+			return i, (mousex - prevw) / (w - prevw)
+		end
+		prevw = w
+		c = i
+	end
+	return c, 1
+end
 
 return utils
