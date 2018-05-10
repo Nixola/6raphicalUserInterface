@@ -8,7 +8,9 @@ local Gui = require "src" -- you can move/rename the folder, making it require "
 local gui = Gui()
 
 local b = gui:add("button", 100, 100, "Click me!")
-b:setCallback(function() error("Happy now?") end)
+b.callback = function() error("Happy now?") end
+
+gui:add("button", 100, 124, "I'm rounded and bigger!", {padding = 6, rx = 4, ry = 4}).callback = function() error("Why'd you click me you doomed us all") end
 
 love.update = function(dt)
   gui:update(dt)
