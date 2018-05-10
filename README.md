@@ -29,3 +29,8 @@ love.mousereleased = function(x, y, b)
 end
 --and so on
 ```
+
+## Todo
+* Add sliders
+* Add checkboxes
+* Update panels to be scrollable (and automatically create and employ a slider or two if needed)
