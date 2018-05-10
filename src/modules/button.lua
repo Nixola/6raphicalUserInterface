@@ -50,10 +50,22 @@ button.new = function(self, x, y, text, style, width, height)
 	t.style = utils.merge(self.style, style)
 	assert(utils.checkSchema(self.styleSchema, t.style))
 	t.font = utils.font[t.style.text.size]
-	t.width = width or t.font:getWidth(t.text) + t.style.padding*2 + t.style.border.width
-	t.height = height or t.font:getHeight() + t.style.padding*2 + t.style.border.width
+	t.width = width or t.font:getWidth(t.text) + t.style.padding*2
+	t.height = height or t.font:getHeight() + t.style.padding*2
+
+	t.children = {}
 
 	return t
+end
+
+
+button.addChild = function(self, child, name)
+	if self.children[name] then
+		error("Child \"" .. name .. "\" already exists.")
+	end
+	self.children[name] = child
+	self.children[#self.children + 1] = child
+	self.children[child] = #self.children
 end
 
 
@@ -90,12 +102,16 @@ end
 button.mousereleased = function(self, x, y, b)
 	if b == 1 and self.clicked then
 		if self.callback and self.hovered then
-			self.callback()
+			self:fire()
 		end
 		self.clicked = false
 	end
 end
 
+
+button.fire = function(self)
+	self.callback(self.children)
+end
 
 button.hover = function(self, x, y)
 	return utils.AABB(self.x, self.y, self.width, self.height, x, y, 1, 1)
