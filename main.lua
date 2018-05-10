@@ -15,7 +15,7 @@ gui:add("backpanel", 200, 100, 400, 400, {
 
 gui:add("button", 100, 100, "TEST").callback = function() print("first button") end
 
-gui:add("button", 100, 124, "TEST", {
+local b = gui:add("button", 100, 124, "TEST", {
 	padding = 3,
 	border = {
 		style = "smooth",
@@ -32,7 +32,17 @@ gui:add("button", 100, 124, "TEST", {
 	clicked = {5/8, 5/8, 5/8},
 	rx = 3,
 	ry = 3
-}).callback = function() print("second button") end
+})
+b.callback = function(children)
+	print("Firing", children.nick.text, children.pass.text, children.mail.text)
+	children.nick:clear()
+	children.pass:clear()
+	children.mail:clear()
+end
+
+gui:add("textLine", 100, 148, 96, b, "nick", {rx = 2, ry = 2}, "Nickname")
+gui:add("textLine", 100, 172, 96, b, "pass", {rx = 2, ry = 2}, "Password")
+gui:add("textLine", 100, 196, 96, b, "mail", {rx = 2, ry = 2}, "E-mail")
 
 love.update = function(dt)
 	gui:update(dt)
@@ -48,4 +58,16 @@ end
 
 love.mousereleased = function(x, y, b)
 	gui:mousereleased(x, y, b)
+end
+
+love.textinput = function(text)
+	gui:textinput(text)
+end
+
+love.keypressed = function(key, keycode, isRepeat)
+	gui:keypressed(key, keycode, isRepeat)
+end
+
+love.keyreleased = function(key, keycode, isRepeat)
+	gui:keyreleased(key, keycode, isRepeat)
 end
