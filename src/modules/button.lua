@@ -84,6 +84,7 @@ button.draw = function(self)
 	love.graphics.setFont(self.font)
 	love.graphics.setColor(style.text.color)
 	love.graphics.print(self.text, self.x + style.padding, self.y + style.padding)
+	--utils.lgDetailPrint(self.text, self.x + style.padding, self.y + style.padding)
 
 	love.graphics.setLineWidth(style.border.width)
 	love.graphics.setLineStyle(style.border.style)
