@@ -44,6 +44,8 @@ gui:add("textLine", 100, 148, 96, b, "nick", {rx = 2, ry = 2}, "Nickname")
 gui:add("textLine", 100, 172, 96, b, "pass", {rx = 2, ry = 2}, "Password")
 gui:add("textLine", 100, 196, 96, b, "mail", {rx = 2, ry = 2}, "E-mail")
 
+gui:add("slider", 600, 100, 16, 400, 1/16)
+
 love.update = function(dt)
 	gui:update(dt)
 end
