@@ -86,6 +86,12 @@ textLine.clear = function(self)
 end
 
 
+textLine.focus = function(self)
+	self.cursorTime = 0
+	self.switched = true
+end
+
+
 textLine.hover = function(self, x, y)
 	return utils.AABB(self.x, self.y, self.width, self.height, x, y, 1, 1)
 end
@@ -127,6 +133,7 @@ textLine.draw = function(self)
 	self.printOffset = utils.clamp(0, self.printOffset, math.max(0, textWidth - self.width + style.padding * 2 + 1))
 	love.graphics.setScissor(self.x + style.padding, self.y + style.padding, self.width - style.padding * 2, self.height - style.padding * 2)
 	love.graphics.print(self.text, self.x + style.padding - self.printOffset, self.y + style.padding)
+	--utils.lgDetailPrint(self.text, self.x + style.padding - self.printOffset, self.y + style.padding)
 	if self.cursorTime and self.cursorTime < style.cursor.duration then
 		love.graphics.setLineWidth(style.cursor.width)
 		love.graphics.setLineStyle(style.cursor.style)
@@ -202,11 +209,13 @@ textLine.keypressed = function(self, key, keycode, isRepeat)
 		local siblings = self.parent.children
 		local ID = siblings[self]
 
-		local nextID = love.keyboard.isDown("lshift", "rshift") and ((ID - 2) % #siblings + 1) or (ID % #siblings + 1)
-		print(ID, nextID)
+		local nextID
+		repeat
+			nextID = love.keyboard.isDown("lshift", "rshift") and ((ID - 2) % #siblings + 1) or (ID % #siblings + 1)
+		until
+			siblings[nextID].focus or nextID == ID
 		self.cursorTime = nil
-		siblings[nextID].cursorTime = 0
-		siblings[nextID].switched = true
+		siblings[nextID]:focus()
 	end
 
 end
