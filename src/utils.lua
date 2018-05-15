@@ -97,4 +97,25 @@ utils.utf8.getCharAtX = function(font, string, mousex)
 	return c, 1
 end
 
+
+utils.lgDetailPrint = function(text, x, y, ro, sx, sy)
+	local font = love.graphics.getFont()
+	local r, g, b, a = love.graphics.getColor()
+	local w, h = font:getWidth(text), font:getHeight()
+	print(h, font:getAscent(), font:getBaseline(), font:getDescent())
+	love.graphics.setColor(1, 1, 1, .1)
+	love.graphics.rectangle("fill", x, y, w, h)
+	love.graphics.setColor(r, g, b, a)
+	love.graphics.print(text, x, y, ro, sx, sy)
+	love.graphics.setColor(1, 0, 0, .5)
+	love.graphics.line(x, y + font:getAscent() - .5, x + w, y + font:getAscent() - .5)
+	love.graphics.setColor(0, 1, 0, .5)
+	love.graphics.line(x, y + font:getBaseline() - .5, x + w, y + font:getBaseline() - .5)
+	love.graphics.setColor(0, 0, 1, .5)
+	love.graphics.line(x, y + font:getBaseline() - font:getDescent() - .5, x + w, y + font:getBaseline() - font:getDescent() - .5)
+	love.graphics.setColor(r, g, b, a)
+end
+	
+
+
 return utils
