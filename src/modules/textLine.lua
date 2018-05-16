@@ -40,8 +40,8 @@ textLine.style = {
 		size = 12,
 		color = {1, 1, 1},
 		margin = {
-			left = 29,
-			right = 29
+			left = 1.25,
+			right = 1.25
 		}
 	},
 	cursor = {
@@ -119,15 +119,15 @@ textLine.draw = function(self)
 	local textWidth = self.font:getWidth(self.text)
 	local cursorX = self.font:getWidth(utils.utf8.sub(self.text, 1, self.cursor))
 	local p
-	if cursorX - self.printOffset < style.text.margin.left - style.padding and
+	if cursorX - self.printOffset < style.text.margin.left*style.text.size - style.padding and
 	  self.printOffset > 0 then
 
-		self.printOffset = -(style.text.margin.left - cursorX - style.padding)
+		self.printOffset = -(style.text.margin.left*style.text.size - cursorX - style.padding)
 
-	elseif cursorX - self.printOffset > self.width - style.padding - style.text.margin.right and
-		self.printOffset + style.text.margin.right > 0 then
+	elseif cursorX - self.printOffset > self.width - style.padding - style.text.margin.right*style.text.size and
+		self.printOffset + style.text.margin.right*style.text.size > 0 then
 
-		self.printOffset = cursorX - self.width + style.padding + style.text.margin.right
+		self.printOffset = cursorX - self.width + style.padding + style.text.margin.right*style.text.size
 
 	end
 	self.printOffset = utils.clamp(0, self.printOffset, math.max(0, textWidth - self.width + style.padding * 2 + 1))
