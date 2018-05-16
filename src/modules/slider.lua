@@ -86,8 +86,12 @@ slider.update = function(self, dt)
 	else
 		newValue = (my - self.active.y - self.y + style.button.height) / (self.height - self.style.button.height * 2 - sh)
 	end
-	
-	self.value = utils.clamp(0, newValue, 1)
+	newValue = utils.clamp(0, newValue, 1)
+
+	if not (self.value == newValue) then
+		--notify parent and/or fire callback
+		self.value = utils.clamp(0, newValue, 1)
+	end
 end
 
 
