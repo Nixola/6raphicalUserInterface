@@ -6,7 +6,7 @@ guiFolder = guiFolder:match("^(.+)%.modules.-$")
 
 panel.new = function(self, x, y, width, height, style)
 
-	local t = self.parent:new()--Gui()
+	local t = self.gui:new()--Gui()
 	if style.bp then
 		t:add("backpanel", x, y, width, height, style.bp)
 	end

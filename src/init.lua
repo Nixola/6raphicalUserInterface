@@ -17,7 +17,7 @@ for i, fileName in ipairs(modules) do
 		error("Failed to load GUI module " .. fileName .. ": " .. module)
 	end
 
-	module.parent = gui
+	module.gui = gui
 
 	gui[moduleName] = module
 end
