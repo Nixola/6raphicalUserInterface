@@ -50,17 +50,20 @@ end
 
 
 slider.getSlider = function(self)
+ 	-- position = self.position + self.style.button.length + self.value * (self.width)
 	local x, y, w, h
 	if self.direction == "horizontal" then
+		local areaWidth = self.width - self.style.button.width * 2
 		y = self.y
-		w = self.span * (self.width - self.style.button.width * 2)
+		w = self.span * areaWidth
 		h = self.height
-		x = self.x + self.style.button.width + (self.value) * (self.width - self.style.button.width * 2)
+		x = self.x + self.style.button.width + (self.value) * (areaWidth - w)
 	else
+		local areaHeight = self.height - self.style.button.height * 2
 		x = self.x
 		w = self.width
-		h = self.span * (self.height - self.style.button.height * 2)
-		y = self.y + self.style.button.height + (self.value) * (self.height - self.style.button.width * 2)
+		h = self.span * areaHeight
+		y = self.y + self.style.button.height + (self.value) * (areaHeight - h)
 	end
 
 	return x, y, w, h
@@ -76,10 +79,12 @@ slider.update = function(self, dt)
 		self.clicked = false
 	end
 
+	local sx, sy, sw, sh = self:getSlider()
+
 	if self.direction == "horizontal" then
 		newValue = (mx - self.x - style.button.width - self.active.x) / (self.width - style.button.width*2)
 	else
-		newValue = (my - self.y - style.button.height - self.active.y) / (self.height - style.button.height*2)
+		newValue = (my - self.active.y - self.y + style.button.height) / (self.height - self.style.button.height * 2 - sh)
 	end
 	
 	self.value = utils.clamp(0, newValue, 1)
