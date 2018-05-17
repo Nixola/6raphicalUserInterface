@@ -87,8 +87,16 @@ end
 
 
 textLine.focus = function(self)
+	self.focused = true
 	self.cursorTime = 0
-	self.switched = true
+	return true
+end
+
+
+textLine.unfocus = function(self)
+	self.cursorTime = nil
+	self.focused = false
+	return true
 end
 
 
@@ -98,8 +106,7 @@ end
 
 
 textLine.update = function(self, dt)
-	self.switched = false
-	if self.cursorTime then
+	if self.focused then
 		self.cursorTime = self.cursorTime + dt
 		while self.cursorTime > self.style.cursor.period do
 			self.cursorTime = self.cursorTime - self.style.cursor.period
@@ -134,7 +141,7 @@ textLine.draw = function(self)
 	love.graphics.setScissor(self.x + style.padding, self.y + style.padding, self.width - style.padding * 2, self.height - style.padding * 2)
 	love.graphics.print(self.text, self.x + style.padding - self.printOffset, self.y + style.padding)
 	--utils.lgDetailPrint(self.text, self.x + style.padding - self.printOffset, self.y + style.padding)
-	if self.cursorTime and self.cursorTime < style.cursor.duration then
+	if self.focused and self.cursorTime < style.cursor.duration then
 		love.graphics.setLineWidth(style.cursor.width)
 		love.graphics.setLineStyle(style.cursor.style)
 		love.graphics.setColor(style.cursor.color or style.text.color)
@@ -153,19 +160,16 @@ end
 
 textLine.mousepressed = function(self, x, y, b)
 	if b == 1 then
-		if self:hover(x, y) then
-			self.cursorTime = 0
+		if self.focused then
 			local charPosition, portion = utils.utf8.getCharAtX(self.font, self.text, x - self.printOffset - self.x)
 			self.cursor = charPosition + math.floor(portion + .5) - 1
-		else
-			self.cursorTime = nil
 		end
 	end
 end
 
 
 textLine.textinput = function(self, text)
-	if not self.cursorTime then return end
+	if not self.focused then return end
 	self.text = string.format("%s%s%s",
 		utils.utf8.sub(self.text, 1, self.cursor),
 		text,
@@ -175,8 +179,7 @@ end
 
 
 textLine.keypressed = function(self, key, keycode, isRepeat)
-	if not self.cursorTime then return end
-	if self.switched then self.switched = false return end
+	if not self.focused then return end
 	if key == "left" then
 		self.cursor = math.max(self.cursor - 1, 0)
 		self.cursorTime = 0
@@ -205,7 +208,7 @@ textLine.keypressed = function(self, key, keycode, isRepeat)
 				self:clear()
 			end
 		end
-	elseif key == "tab" then
+	--[[elseif key == "tab" then
 		local siblings = self.parent.children
 		local ID = siblings[self]
 
@@ -215,7 +218,7 @@ textLine.keypressed = function(self, key, keycode, isRepeat)
 		until
 			siblings[nextID].focus or nextID == ID
 		self.cursorTime = nil
-		siblings[nextID]:focus()
+		siblings[nextID]:focus()--]]
 	end
 
 end
