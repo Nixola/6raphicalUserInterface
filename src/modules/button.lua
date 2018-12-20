@@ -70,26 +70,28 @@ end
 
 
 button.update = function(self, dt)
-	self.hovered = utils.AABB(self.x, self.y, self.width, self.height, love.mouse.getX(), love.mouse.getY(), 1, 1)
+	--self.hovered = utils.AABB(self.x, self.y, self.width, self.height, love.mouse.getX(), love.mouse.getY(), 1, 1)
 end
 
 
-button.draw = function(self)
+button.draw = function(self, dx, dy)
+	dx, dy = dx or 0, dy or 0
+	local x, y = dx + self.x, dy + self.y
 	local style = self.style
 	love.graphics.setColor(
 		self.clicked and (self.hovered and (style.clicked or style.active) or style.active) or
 		self.hovered and style.hover or style.idle)
-	love.graphics.rectangle("fill", self.x, self.y, self.width, self.height, style.rx, style.ry, style.segments)
+	love.graphics.rectangle("fill", x, y, self.width, self.height, style.rx, style.ry, style.segments)
 
 	love.graphics.setFont(self.font)
 	love.graphics.setColor(style.text.color)
-	love.graphics.print(self.text, self.x + style.padding, self.y + style.padding)
-	--utils.lgDetailPrint(self.text, self.x + style.padding, self.y + style.padding)
+	love.graphics.print(self.text, x + style.padding, y + style.padding)
+	--utils.lgDetailPrint(self.text, x + style.padding, y + style.padding)
 
 	love.graphics.setLineWidth(style.border.width)
 	love.graphics.setLineStyle(style.border.style)
 	love.graphics.setColor(style.border.color)
-	love.graphics.rectangle("line", self.x, self.y, self.width, self.height, style.rx, style.ry, style.segments)
+	love.graphics.rectangle("line", x, y, self.width, self.height, style.rx, style.ry, style.segments)
 end
 
 

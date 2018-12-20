@@ -116,10 +116,12 @@ end
 
 
 
-textLine.draw = function(self)
+textLine.draw = function(self, dx, dy)
+	dx, dy = dx or 0, dy or 0
+	local x, y = dx + self.x, dy + self.y
 	local style = self.style
 	love.graphics.setColor(style.background)
-	love.graphics.rectangle("fill", self.x, self.y, self.width, self.height, style.rx, style.ry, segments)
+	love.graphics.rectangle("fill", x, y, self.width, self.height, style.rx, style.ry, segments)
 
 	love.graphics.setColor(style.text.color)
 	love.graphics.setFont(self.font)
@@ -138,15 +140,15 @@ textLine.draw = function(self)
 
 	end
 	self.printOffset = utils.clamp(0, self.printOffset, math.max(0, textWidth - self.width + style.padding * 2 + 1))
-	love.graphics.setScissor(self.x + style.padding, self.y + style.padding, self.width - style.padding * 2, self.height - style.padding * 2)
-	love.graphics.print(self.text, self.x + style.padding - self.printOffset, self.y + style.padding)
+	love.graphics.setScissor(x + style.padding, y + style.padding, self.width - style.padding * 2, self.height - style.padding * 2)
+	love.graphics.print(self.text, x + style.padding - self.printOffset, y + style.padding)
 	--utils.lgDetailPrint(self.text, self.x + style.padding - self.printOffset, self.y + style.padding)
 	if self.focused and self.cursorTime < style.cursor.duration then
 		love.graphics.setLineWidth(style.cursor.width)
 		love.graphics.setLineStyle(style.cursor.style)
 		love.graphics.setColor(style.cursor.color or style.text.color)
-		local cx = self.x + style.padding - self.printOffset + cursorX + 1
-		love.graphics.line(cx, self.y - style.padding, cx, self.y + self.height + style.padding)
+		local cx = x + style.padding - self.printOffset + cursorX + 1
+		love.graphics.line(cx, y - style.padding, cx, y + self.height + style.padding)
 	end
 
 	love.graphics.setScissor()
@@ -154,7 +156,7 @@ textLine.draw = function(self)
 	love.graphics.setColor(style.border.color)
 	love.graphics.setLineWidth(style.border.width)
 	love.graphics.setLineStyle(style.border.style)
-	love.graphics.rectangle("line", self.x, self.y, self.width, self.height, style.rx, style.ry, segments)
+	love.graphics.rectangle("line", x, y, self.width, self.height, style.rx, style.ry, segments)
 end
 
 

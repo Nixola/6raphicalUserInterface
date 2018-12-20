@@ -1,14 +1,14 @@
 local guiFolder = ...
 guiFolder = guiFolder .. "/"
 
+local utils = require(guiFolder:gsub("/", ".") .. "utils")
+
 
 local gui = {}
 gui.focused = 0
 
 local modulesFolder = guiFolder .. "modules/"
 local modules = love.filesystem.getDirectoryItems(modulesFolder)
-
-gui.items = setmetatable({}, {__call = function(self) return ipairs(self) end})
 
 for i, fileName in ipairs(modules) do
 	local moduleName = fileName:match("(.+)%.lua$")
@@ -26,9 +26,22 @@ end
 
 gui.update = function(self, dt)
 	if not self.shown then return end -- if the gui is inactive, do not fire
+
+	local mx, my = love.mouse.getPosition()
+	if self.scroll then
+		mx = mx - self.x
+		my = my - self.y
+	end
 	
 	for i, item in self.items() do
+		local my = my
+		if not (item.style and item.style.position and item.style.position.absolute) and self.scroll then
+			my = my - self.scroll.y
+		end
 		if item.update then
+			if item.hover then
+				item.hovered = item:hover(mx, my)
+			end
 			item:update(dt)
 		end
 	end
@@ -40,8 +53,29 @@ gui.draw = function(self)
 	
 	for i, item in self.items() do
 		if item.draw then
-			item:draw()
+			local dx, dy
+			if self.scroll then
+				dx = self.x
+				dy = self.y + ((item.style.position and item.style.position.absolute) and 0 or self.scroll.y)
+				love.graphics.setScissor(self.x - 1, self.y - 1, self.width + 2 , self.height + 2)
+				--[[love.graphics.push()
+				love.graphics.translate(dx, dy)--]]
+			end
+			item:draw(dx, dy)
+			--[[
+			if self.scroll then
+				love.graphics.pop()
+			end--]]
 		end
+	end
+end
+
+
+gui.hover = function(self, x, y)
+	if self.scroll then
+		return utils.AABB(self.x, self.y, self.width, self.height, x, y, 1, 1)
+	else
+		return true
 	end
 end
 
@@ -49,12 +83,26 @@ end
 gui.mousepressed = function(self, x, y, b)
 	if not self.shown then return end -- if the gui is inactive, do not fire
 
-	for i, item in self.items() do
+	if self.scroll then
+		x = x - self.x
+		y = y - self.y
+	end
+
+	for i, item in self.items() do --[[
 		if item.hover and item.focus and item:hover(x, y) then
 			self:setFocus(item)
 		end
 		if item.mousepressed then
 			item:mousepressed(x, y, b)
+		end--]]
+		local y = y
+		if not (item.style and item.style.position and item.style.position.absolute) and self.scroll then
+			y = y - self.scroll.y
+		end
+		if item.hover and item:hover(x, y) then
+			local y = y
+			if item.focus then self:setFocus(item) end
+			if item.mousepressed then item:mousepressed(x, y, b) end
 		end
 	end
 end
@@ -62,9 +110,18 @@ end
 
 gui.mousereleased = function(self, x, y, b)
 	if not self.shown then return end -- if the gui is inactive, do not fire
+
+	if self.scroll then
+		x = x - self.x
+		y = y - self.y
+	end
 	
 	for i, item in self.items() do
-		if item.mousereleased then
+		local y = y
+		if not (item.style and item.style.position and item.style.position.absolute) and self.scroll then
+			y = y - self.scroll.y
+		end
+		if item.mousereleased and item.hover and item:hover(x, y) then
 			item:mousereleased(x, y, b)
 		end
 	end
@@ -74,10 +131,26 @@ end
 gui.wheelmoved = function(self, dx, dy)
 	if not self.shown then return end -- if the gui is inactive, do not fire
 
+	local mx, my = love.mouse.getPosition()
+
+	if self.scroll then
+		mx = mx - self.x
+		my = my - self.y
+	end
+
+	local caught = false
+
 	for i, item in self.items() do
-		if item.wheelmoved then
-			item:wheelmoved(dx, dy)
+		if not (item.style and item.style.position and item.style.position.absolute) and self.scroll then
+			my = my - self.scroll.y
 		end
+		if item.wheelmoved and item.hover and item:hover(mx, my) then
+			item:wheelmoved(dx, dy)
+			caught = true
+		end
+	end
+	if not caught and self.scroll then
+		self.scroll.y = utils.clamp(- (self.scroll.maxHeight - self.height), self.scroll.y + dy * 10, 0)
 	end
 end
 
@@ -189,6 +262,13 @@ gui.add = function(self, moduleName, ...)
 	self.items[#self.items + 1] = newItem
 	newItem.managed = true
 
+	if self.scroll then
+
+		self.scroll.maxHeight = math.max(self.scroll.maxHeight, newItem.y + newItem.height)
+
+	end
+
+
 	return newItem
 end
 
@@ -205,12 +285,29 @@ gui.remove = function(self, item)
 end
 
 
-gui.new = function(self)
+gui.new = function(self, x, y, width, height)
 	
 	local t = setmetatable({}, {__index = self})
 	t.shown = true
 
+	t.items = setmetatable({}, {__call = function(self) return ipairs(self) end})
+
+	if x and y and width and height then
+		t.scroll = {}
+		t.scroll.y = 0
+		t.scroll.maxHeight = 0
+		t.x = x
+		t.y = y
+		t.width = width
+		t.height = height
+	end
 	return t
+end
+
+
+gui.getAABB = function(self, item)
+	assert(item.x and item.y and item.w and item.h, "Item has no AABB")
+	return item.x, item.y, item.w, item.h
 end
 
 

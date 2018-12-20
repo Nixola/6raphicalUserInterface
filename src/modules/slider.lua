@@ -96,16 +96,19 @@ end
 
 
 
-slider.draw = function(self)
+slider.draw = function(self, dx, dy)
+	dx, dy = dx or 0, dy or 0
+	local x, y = dx + self.x, dy + self.y
 	local style = self.style
 	love.graphics.setColor(style.background)
-	love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
+	love.graphics.rectangle("fill", x, y, self.width, self.height)
 
 	love.graphics.setColor(style.button.idle)
 		--etc
 
 	love.graphics.setColor(self.clicked and style.clicked or self.active and style.active or self.hover and style.hover or style.idle)
 	local sx, sy, sw, sh = self:getSlider()
+	sx, sy = sx + dx, sy + dy
 	love.graphics.rectangle("fill", sx, sy, sw, sh)
 end
 

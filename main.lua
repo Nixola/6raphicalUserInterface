@@ -1,17 +1,22 @@
 local Gui = require 'src'
 local gui = Gui()
 
-gui:add("backpanel", 200, 100, 400, 400, {
-	border = {
-		style = "smooth",
-		width = 1,
-		color = {7/8, 7/8, 7/8}
-	},
-	background = {2/8, 2/8, 2/8},
-	rx = 10,
-	ry = 10,
-	segments = 10
+local p = gui:add("panel", 200, 100, 400, 400, {
+	bp = {
+		border = {
+			style = "smooth",
+			width = 1,
+			color = {7/8, 7/8, 7/8}
+		},
+		background = {2/8, 2/8, 2/8},
+		rx = 10,
+		ry = 10,
+		segments = 10
+	}
 })
+
+p:add("button", 16, 10, "DIO").callback = function() print("IT COULD WORK") end
+p:add("button", 16, 450, "AAAA").callback = function() print("wat") end
 
 gui:add("button", 100, 100, "TEST").callback = function() print("first button") end
 
@@ -60,6 +65,10 @@ end
 
 love.mousereleased = function(x, y, b)
 	gui:mousereleased(x, y, b)
+end
+
+love.wheelmoved = function(dx, dy)
+	gui:wheelmoved(dx, dy)
 end
 
 love.textinput = function(text)
