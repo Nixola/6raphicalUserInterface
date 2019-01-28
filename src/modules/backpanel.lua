@@ -21,7 +21,6 @@ backpanel.new = function(self, x, y, width, height, style)
 	t.y = y
 	t.width = width
 	t.height = height
-	print("style:", style.position)
 	t.style = utils.merge(self.style, style)
 	assert(utils.checkSchema(self.styleSchema, t.style))
 	
