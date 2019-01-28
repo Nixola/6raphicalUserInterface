@@ -140,7 +140,15 @@ textLine.draw = function(self, dx, dy)
 
 	end
 	self.printOffset = utils.clamp(0, self.printOffset, math.max(0, textWidth - self.width + style.padding * 2 + 1))
-	love.graphics.setScissor(x + style.padding, y + style.padding, self.width - style.padding * 2, self.height - style.padding * 2)
+	local scissor = {love.graphics.getScissor()}
+	local sx, sy, sw, sh = x + style.padding, y + style.padding, self.width - style.padding * 2, self.height - style.padding * 2
+	if scissor[1] then
+		sx, sy, sw, sh = utils.AABB∩(scissor[1], scissor[2], scissor[3], scissor[4], sx, sy, sw, sh)
+		if not sx then
+			sx, sy, sw, sh = 0, 0, 0, 0
+		end
+	end
+	love.graphics.setScissor(sx, sy, sw, sh)
 	love.graphics.print(self.text, x + style.padding - self.printOffset, y + style.padding)
 	--utils.lgDetailPrint(self.text, self.x + style.padding - self.printOffset, self.y + style.padding)
 	if self.focused and self.cursorTime < style.cursor.duration then
@@ -151,7 +159,7 @@ textLine.draw = function(self, dx, dy)
 		love.graphics.line(cx, y - style.padding, cx, y + self.height + style.padding)
 	end
 
-	love.graphics.setScissor()
+	love.graphics.setScissor(unpack(scissor))
 
 	love.graphics.setColor(style.border.color)
 	love.graphics.setLineWidth(style.border.width)
@@ -171,7 +179,6 @@ end
 
 
 textLine.textinput = function(self, text)
-	if not self.focused then return end
 	self.text = string.format("%s%s%s",
 		utils.utf8.sub(self.text, 1, self.cursor),
 		text,
@@ -181,7 +188,6 @@ end
 
 
 textLine.keypressed = function(self, key, keycode, isRepeat)
-	if not self.focused then return end
 	if key == "left" then
 		self.cursor = math.max(self.cursor - 1, 0)
 		self.cursorTime = 0
