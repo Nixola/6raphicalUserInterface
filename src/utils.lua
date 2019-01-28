@@ -53,7 +53,6 @@ end
 utils.checkSchema = function(schema, t)
 	for i, v in pairs(schema) do
 		if type(t[i]) ~= type(v) and not (type(t[i]) == "nil" and type(v) == "boolean") then
-			print(type(t[i]), type(v))
 			return nil, "Unmatched schema in key " .. i
 		end
 		if type(v) == "table" then
@@ -72,6 +71,23 @@ utils.AABB = function(x1, y1, w1, h1, x2, y2, w2, h2)
 		x2 < x1+w1 and
 		y1 < y2+h2 and
 		y2 < y1+h1
+end
+
+
+utils.AABB∩ = function(x1, y1, w1, h1, x2, y2, w2, h2)
+	local nx = math.max(x1, x2)
+	local ny = math.max(y1, y2)
+	local nw1 = x1 + w1 - nx
+	local nw2 = x2 + w2 - nx
+	local nw = math.min(nw1, nw2)
+	local nh1 = y1 + h1 - ny
+	local nh2 = y2 + h2 - ny
+	local nh = math.min(nh1, nh2)
+
+	local exists = nw > 0 and nh > 0
+	if exists then
+		return nx, ny, nw, nh
+	end
 end
 
 
@@ -114,6 +130,14 @@ utils.lgDetailPrint = function(text, x, y, ro, sx, sy)
 	love.graphics.setColor(0, 0, 1, .5)
 	love.graphics.line(x, y + font:getBaseline() - font:getDescent() - .5, x + w, y + font:getBaseline() - font:getDescent() - .5)
 	love.graphics.setColor(r, g, b, a)
+end
+
+
+utils.getAABB = function(item)
+	if not item.x and item.y and item.width and item.height then
+		return false
+	end
+	return item.x, item.y, item.width, item.height
 end
 	
 
