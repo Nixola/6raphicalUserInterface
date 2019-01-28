@@ -62,12 +62,30 @@ gui.draw = function(self)
 				love.graphics.translate(dx, dy)--]]
 			end
 			item:draw(dx, dy)
+			love.graphics.setScissor()
 			--[[
 			if self.scroll then
 				love.graphics.pop()
 			end--]]
 		end
 	end
+
+	if self.scroll then
+		love.graphics.setColor(255, 0, 0)
+		local scissor = {love.graphics.getScissor()}
+		love.graphics.setScissor()
+		love.graphics.rectangle("line", self.x, self.y + self.scroll.y, self.width, self.scroll.maxHeight)
+		love.graphics.setScissor(unpack(scissor))
+	end
+
+	if self:getFocusedItem() and utils.getAABB(self:getFocusedItem()) then
+		love.graphics.setColor(0, 255, 0)
+		local scissor = {love.graphics.getScissor()}
+		love.graphics.setScissor()
+		love.graphics.rectangle("line", self:adjustPosition(false, utils.getAABB(self:getFocusedItem())))
+		love.graphics.setScissor(unpack(scissor))
+	end
+
 end
 
 
@@ -88,20 +106,14 @@ gui.mousepressed = function(self, x, y, b)
 		y = y - self.y
 	end
 
-	for i, item in self.items() do --[[
-		if item.hover and item.focus and item:hover(x, y) then
-			self:setFocus(item)
-		end
-		if item.mousepressed then
-			item:mousepressed(x, y, b)
-		end--]]
+	for i, item in self.items() do
 		local y = y
 		if not (item.style and item.style.position and item.style.position.absolute) and self.scroll then
 			y = y - self.scroll.y
 		end
 		if item.hover and item:hover(x, y) then
 			local y = y
-			if item.focus then self:setFocus(item) end
+			if item.focus then self:setFocus(item, true) end --force
 			if item.mousepressed then item:mousepressed(x, y, b) end
 		end
 	end
@@ -155,55 +167,118 @@ gui.wheelmoved = function(self, dx, dy)
 end
 
 
+gui.adjustPosition = function(self, absolute, x, y, ...)
+
+	if self.scroll then
+		x = self.x + x
+		y = self.y + y
+		if not absolute then
+			y = y + self.scroll.y
+		end
+	end
+
+	return x, y, ...
+end
+
+
 gui.keypressed = function(self, key, keycode, isRepeat)
 	if not self.shown then return end -- if the gui is inactive, do not fire
 
 	if key == "tab" then
 		local ID = self.focused
 		local nextID = ID
-		local isPrev = love.keyboard.isDown("lshift", "rshift")
+		local reverse = love.keyboard.isDown("lshift", "rshift")
 
-		--[[elseif key == "tab" then
-		local siblings = self.parent.children
-		local ID = siblings[self]
-
-		local nextID
-		repeat
-			nextID = love.keyboard.isDown("lshift", "rshift") and ((ID - 2) % #siblings + 1) or (ID % #siblings + 1)
-		until
-			siblings[nextID].focus or nextID == ID
-		self.cursorTime = nil
-		siblings[nextID]:focus()--]]
-
-		if (not self.items[ID]) or self.items[ID]:unfocus() then
-
-			repeat
-				print("Switching", ID, nextID)
-				nextID = isPrev and ((nextID - 2) % #self.items + 1) or (nextID % #self.items + 1)
-				print(nextID)
-			until
-				self.items[nextID].focus or nextID == ID
-			self:setFocus(self.items[nextID])
+		if (not self.items[ID]) or self.items[ID]:unfocus(reverse) then
+			self:focus(ID, reverse, not self.inner)
 		end
+		return
 	end
 
-	--iterate through elements with tab?
+	if self:getFocusedItem() and self:getFocusedItem().keypressed then
+		self:getFocusedItem():keypressed(key, keycode, isRepeat)
+	end
+end
 
-	for i, item in self.items() do
-		if item.keypressed then
-			item:keypressed(key, keycode, isRepeat)
+
+gui.focus = function(self, start, reverse, wrap)
+
+	if type(start) == "boolean" then
+		reverse = start
+		start = nil
+	end
+	local interval = reverse and -1 or 1
+	start = start and (start + interval) or (reverse and #self.items or (interval + 1))
+	local finish
+	if wrap then
+		finish = start + (#self.items + 1) * interval
+	else
+		finish = reverse and 1 or #self.items
+	end
+
+	for id = start, finish, interval do
+		local id = (id - 1) % #self.items + 1
+		if self.items[id].focus and self:setFocus(self.items[id], nil, reverse) then
+			return true
 		end
 	end
+end
+
+
+gui.unfocus = function(self, reverse, force)
+
+	local focused = self:getFocusedItem()
+	
+	if focused and focused.unfocus and not focused:unfocus() then
+		return false
+	end
+
+	if force then
+		return true
+	end
+	if not self:focus(self.focused, reverse, false) then
+		self.focused = nil
+		return true
+	end
+end
+
+
+gui.setFocus = function(self, newItem, force, reverse)
+
+	local focused = self:getFocusedItem()
+
+	if focused == newItem then
+		return true
+	end
+
+	if newItem.focus and newItem:focus(reverse) then
+
+		if focused and focused.unfocus then
+			focused:unfocus(reverse, force)
+		end
+
+		for i, v in ipairs(self.items) do
+			if v == newItem then
+				self.focused = i
+				break
+			end
+		end
+		return true
+	end
+end
+
+
+gui.getFocusedItem = function(self)
+
+	return self.focused and self.items[self.focused]
 end
 
 
 gui.keyreleased = function(self, key, keycode)
 	if not self.shown then return end -- if the gui is inactive, do not fire
 
-	for i, item in self.items() do
-		if item.keyreleased then
-			item:keyreleased(key, keycode)
-		end
+	if self:getFocusedItem() and self:getFocusedItem().keyreleased then
+		self:getFocusedItem():keyreleased(key, keycode)
 	end
 end
 
@@ -211,26 +286,8 @@ end
 gui.textinput = function(self, text)
 	if not self.shown then return end -- if the gui is inactive, do not fire
 	
-	for i, item in self.items() do
-		if item.textinput then
-			item:textinput(text)
-		end
-	end
-end
-
-
-gui.setFocus = function(self, newItem)
-	if self.items[self.focused] and self.items[self.focused].unfocus and newItem.focus then
-		self.items[self.focused]:unfocus(true) --force
-	end
-	if newItem.focus then
-		newItem:focus()
-		for i, v in ipairs(self.items) do
-			if v == newItem then
-				self.focused = i
-				break
-			end
-		end
+	if self:getFocusedItem() and self:getFocusedItem().textinput then
+		self:getFocusedItem():textinput(text)
 	end
 end
 
@@ -303,13 +360,6 @@ gui.new = function(self, x, y, width, height)
 	end
 	return t
 end
-
-
-gui.getAABB = function(self, item)
-	assert(item.x and item.y and item.w and item.h, "Item has no AABB")
-	return item.x, item.y, item.w, item.h
-end
-
 
 
 return setmetatable(gui, {__call = gui.new})
