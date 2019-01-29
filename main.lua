@@ -46,8 +46,6 @@ panelItems.textLine2 = panel:add("textLine", 16, 50, 96, panelItems.button1, "th
 
 panelItems.textLine3 = panel:add("textLine", 16, 70, 96, panelItems.button1, "thong")
 
-thing = panelItems.textLine1
-
 
 guiItems.button1 = gui:add("button", 100, 100, "TEST")
 guiItems.button1.callback = function() flash("first button") end
