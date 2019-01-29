@@ -171,7 +171,7 @@ end
 textLine.mousepressed = function(self, x, y, b)
 	if b == 1 then
 		if self.focused then
-			local charPosition, portion = utils.utf8.getCharAtX(self.font, self.text, x - self.printOffset - self.x)
+			local charPosition, portion = utils.utf8.getCharAtX(self.font, self.text, x + self.printOffset - self.x)
 			self.cursor = charPosition + math.floor(portion + .5) - 1
 		end
 	end
