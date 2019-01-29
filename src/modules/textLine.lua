@@ -63,7 +63,7 @@ textLine.new = function(self, x, y, width, parent, name, style, text)
     assert(utils.checkSchema(self.styleSchema, t.style))
     t.font = utils.font[t.style.text.size]
     t.width = width
-    t.height = t.font:getHeight() + t.style.padding*2
+    t.height = math.max(t.font:getHeight(), t.font:getAscent() - t.font:getDescent()) + t.style.padding*2
     t.name = name
     t.text = text or ""
     t.printOffset = 0
