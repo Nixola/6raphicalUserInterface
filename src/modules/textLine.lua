@@ -72,7 +72,7 @@ textLine.new = function(self, x, y, width, parent, name, style, text)
     if parent then
         assert(parent.addChild, "Parent does not support children") -- call social services
         parent:addChild(t, name)
-        self.parent = parent
+        t.parent = parent
     end
 
     return t
