@@ -130,14 +130,14 @@ function utf8.sub (s, i, j)
       len = len + 1
       
       if len == startChar then
-	 startByte = pos
+     startByte = pos
       end
       
       pos = pos + utf8.charbytes(s, pos)
       
       if len == endChar then
-	 endByte = pos - 1
-	 break
+     endByte = pos - 1
+     break
       end
    end
    
