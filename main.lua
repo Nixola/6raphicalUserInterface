@@ -120,3 +120,7 @@ end
 love.keyreleased = function(key, keycode, isRepeat)
     gui:keyreleased(key, keycode, isRepeat)
 end
+
+love.load = function()
+    love.keyboard.setKeyRepeat(true)
+end
