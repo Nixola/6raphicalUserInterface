@@ -186,11 +186,11 @@ gui.keypressed = function(self, key, keycode, isRepeat)
 
     if key == "tab" then
         local ID = self.focused
-        local nextID = ID
         local reverse = love.keyboard.isDown("lshift", "rshift")
 
         if (not self.items[ID]) or self.items[ID]:unfocus(reverse) then
-            self:focus(ID, reverse, not self.inner)
+            local wrapFocus = not self.inner
+            self:focus(ID, reverse, wrapFocus)
         end
         return
     end
@@ -206,7 +206,9 @@ gui.focus = function(self, start, reverse, wrap)
     if type(start) == "boolean" then
         reverse = start
         start = nil
+        wrap = false
     end
+    
     local interval = reverse and -1 or 1
     start = start and (start + interval) or (reverse and #self.items or (interval + 1))
     local finish
@@ -234,6 +236,7 @@ gui.unfocus = function(self, reverse, force)
     end
 
     if force then
+        self.focused = nil
         return true
     end
     if not self:focus(self.focused, reverse, false) then
@@ -253,7 +256,8 @@ gui.setFocus = function(self, newItem, force, reverse)
 
     if newItem.focus and newItem:focus(reverse) then
 
-        if focused and focused.unfocus then
+        if focused and focused.focused and focused.unfocus then
+            io.stdout:flush()
             focused:unfocus(reverse, force)
         end
 
