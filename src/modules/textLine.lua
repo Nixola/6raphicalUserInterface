@@ -143,7 +143,7 @@ textLine.draw = function(self, dx, dy)
     local scissor = {love.graphics.getScissor()}
     local sx, sy, sw, sh = x + style.padding, y + style.padding, self.width - style.padding * 2, self.height - style.padding * 2
     if scissor[1] then
-        sx, sy, sw, sh = utils.AABB∩(scissor[1], scissor[2], scissor[3], scissor[4], sx, sy, sw, sh)
+        sx, sy, sw, sh = utils.AABBIntersect(scissor[1], scissor[2], scissor[3], scissor[4], sx, sy, sw, sh)
         if not sx then
             sx, sy, sw, sh = 0, 0, 0, 0
         end

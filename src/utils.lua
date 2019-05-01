@@ -74,7 +74,7 @@ utils.AABB = function(x1, y1, w1, h1, x2, y2, w2, h2)
 end
 
 
-utils.AABB∩ = function(x1, y1, w1, h1, x2, y2, w2, h2)
+utils.AABBIntersect = function(x1, y1, w1, h1, x2, y2, w2, h2)
     local nx = math.max(x1, x2)
     local ny = math.max(y1, y2)
     local nw1 = x1 + w1 - nx
