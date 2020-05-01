@@ -133,8 +133,11 @@ gui.mousereleased = function(self, x, y, b)
         if not (item.style and item.style.position and item.style.position.absolute) and self.scroll then
             y = y - self.scroll.y
         end
-        if item.mousereleased and item.hover and item:hover(x, y) then
-            item:mousereleased(x, y, b)
+        if item.mousereleased then
+            if item.hover and item:hover(x, y) then
+                item:mousereleased(x, y, b)
+            end
+            item.clicked = false
         end
     end
 end
