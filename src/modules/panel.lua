@@ -5,7 +5,7 @@ guiFolder = guiFolder:match("^(.+)%.modules.-$")
 local utils = require(guiFolder .. ".utils")
 
 
-panel.new = function(self, x, y, width, height, style)
+panel.new = function(self, parent, x, y, width, height, style)
 
     local t = self.gui:new(x, y, width, height)--Gui()
     if style and style.bp then

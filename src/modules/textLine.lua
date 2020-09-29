@@ -54,7 +54,7 @@ textLine.style = {
     background = {3/8, 3/8, 3/8},
 }
 
-textLine.new = function(self, x, y, width, parent, name, style, text)
+textLine.new = function(self, parent, x, y, width, parent, name, style, text)
     local t = setmetatable({}, {__index = self})
 
     t.x = x

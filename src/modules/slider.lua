@@ -27,7 +27,7 @@ slider.style = {
 }
 
 
-slider.new = function(self, x, y, width, height, span, style, value)
+slider.new = function(self, parent, x, y, width, height, span, style, value)
     local t = setmetatable({}, {__index = self})
 
     t.x = x

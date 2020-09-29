@@ -13,7 +13,7 @@ backpanel.styleSchema = {
     background = {1, 1, 1},
 }
 
-backpanel.new = function(self, x, y, width, height, style)
+backpanel.new = function(self, parent, x, y, width, height, style)
 
     local t = setmetatable({}, {__index = self})
 

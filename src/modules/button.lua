@@ -42,7 +42,7 @@ hovered, not clicked (style.hover)
 clicked and hovered (style.clicked)
 clicked and not hovered (style.active), before releasing the mouse]]
 
-button.new = function(self, x, y, text, style, width, height)
+button.new = function(self, parent, x, y, text, style, width, height)
     local t = setmetatable({}, {__index = self})
     t.x = x
     t.y = y
@@ -56,6 +56,11 @@ button.new = function(self, x, y, text, style, width, height)
     t.children = {}
 
     return t
+end
+
+
+button.fitWidth = function(self)
+    self.width = self.font:getWidth(self.text) + self.style.padding*2
 end
 
 
@@ -96,7 +101,8 @@ end
 
 
 button.mousepressed = function(self, x, y, b)
-    if b == 1 and utils.AABB(self.x, self.y, self.width, self.height, x, y, 1, 1) then
+    print("AAA")
+    if b == 1 and self:hover(x, y) then
         self.clicked = true
     end
 end

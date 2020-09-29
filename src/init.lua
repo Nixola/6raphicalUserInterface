@@ -321,7 +321,7 @@ gui.add = function(self, moduleName, ...)
         error("Attempt to add invalid module")
     end
 
-    local newItem = module:new(...)
+    local newItem = module:new(self, ...)
 
     self.items[#self.items + 1] = newItem
     newItem.managed = true
