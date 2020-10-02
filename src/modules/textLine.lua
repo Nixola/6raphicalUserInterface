@@ -54,7 +54,7 @@ textLine.style = {
     background = {3/8, 3/8, 3/8},
 }
 
-textLine.new = function(self, parent, x, y, width, parent, name, style, text)
+textLine.new = function(self, parentGui, x, y, width, parent, name, style, text)
     local t = setmetatable({}, {__index = self})
 
     t.x = x
@@ -96,6 +96,9 @@ end
 textLine.unfocus = function(self)
     self.cursorTime = nil
     self.focused = false
+    if self.unfocusCallback then
+        self:unfocusCallback()
+    end
     return true
 end
 
@@ -179,11 +182,14 @@ end
 
 
 textLine.textinput = function(self, text)
-    self.text = string.format("%s%s%s",
+    local newText = string.format("%s%s%s",
         utils.utf8.sub(self.text, 1, self.cursor),
         text,
         utils.utf8.sub(self.text, self.cursor + 1, utf8.len(self.text)))
-    self.cursor = self.cursor + utf8.len(text)
+    if (not self.validate) or self.validate(newText) then
+        self.text = self.validate(newText)
+        self.cursor = self.cursor + utf8.len(text)
+    end
 end
 
 

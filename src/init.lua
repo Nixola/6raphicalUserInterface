@@ -7,8 +7,8 @@ local utils = require(guiFolder:gsub("/", ".") .. "utils")
 local gui = {}
 gui.focused = 0
 
-local modulesFolder = guiFolder .. "modules/"
-local modules = love.filesystem.getDirectoryItems(modulesFolder:gsub("%.", "/"))
+local modulesFolder = guiFolder:gsub("%.", "/") .. "modules/"
+local modules = love.filesystem.getDirectoryItems(modulesFolder)
 
 for i, fileName in ipairs(modules) do
     local moduleName = fileName:match("(.+)%.lua$")
@@ -70,6 +70,7 @@ gui.draw = function(self)
         end
     end
     if not self.debug then return end
+
     if self.scroll then
         love.graphics.setColor(255, 0, 0)
         local scissor = {love.graphics.getScissor()}
@@ -106,6 +107,7 @@ gui.mousepressed = function(self, x, y, b)
         y = y - self.y
     end
 
+    local focused = false
     for i, item in self.items() do
         local y = y
         if not (item.style and item.style.position and item.style.position.absolute) and self.scroll then
@@ -113,9 +115,15 @@ gui.mousepressed = function(self, x, y, b)
         end
         if item.hover and item:hover(x, y) then
             local y = y
-            if item.focus then self:setFocus(item, true) end --force
+            if item.focus then
+                self:setFocus(item, true)
+                focused = true
+            end --force
             if item.mousepressed then item:mousepressed(x, y, b) end
         end
+    end
+    if not focused then
+        self:unfocus(false, true)
     end
 end
 
