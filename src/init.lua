@@ -8,7 +8,7 @@ local gui = {}
 gui.focused = 0
 
 local modulesFolder = guiFolder .. "modules/"
-local modules = love.filesystem.getDirectoryItems(modulesFolder)
+local modules = love.filesystem.getDirectoryItems(modulesFolder:gsub("%.", "/"))
 
 for i, fileName in ipairs(modules) do
     local moduleName = fileName:match("(.+)%.lua$")
@@ -69,7 +69,7 @@ gui.draw = function(self)
             end--]]
         end
     end
-
+    if not self.debug then return end
     if self.scroll then
         love.graphics.setColor(255, 0, 0)
         local scissor = {love.graphics.getScissor()}
