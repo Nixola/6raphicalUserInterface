@@ -101,7 +101,6 @@ end
 
 
 button.mousepressed = function(self, x, y, b)
-    print("AAA")
     if b == 1 and self:hover(x, y) then
         self.clicked = true
     end
