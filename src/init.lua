@@ -350,6 +350,7 @@ gui.remove = function(self, item)
     for i, v in ipairs(self.items) do
         if item == v then
             table.remove(self.items, i)
+            done = true
             break
         end
     end
