@@ -46,21 +46,27 @@ dropdown.new = function(self, parent, x, y, choices, style, width, height)
     assert(utils.checkSchema(self.styleSchema, t.style))
     t.font = utils.font[t.style.text.size]
     t.height = height or t.font:getHeight() + t.style.padding*2
-    t.width = width or t.font:getWidth(choices[t.selected]) + t.style.padding*2 + t.height
+    local maxWidth = 0
+    for i, v in ipairs(choices) do
+        maxWidth = math.max(maxWidth, t.font:getWidth(v))
+    end
+    t.width = width or maxWidth + t.style.padding*2 + t.height
 
     t.panel = parent:add("panel", t.x, t.y + t.height)
     --t.panel = require(guiFolder .. ".modules.panel"):new(t.x, t.y + t.height)
     t.panel.shown = false
     --self.gui:remove(t.panel)
+    local bstyle = utils.merge(t.style)
+    bstyle.border.color = {0,0,0,0}
     for i, v in ipairs(t.choices) do
-        local button = t.panel:add("button", t.x, t.y + i * 20, v, nil, nil, 20)
+        local button = t.panel:add("button", t.x, t.y + i * 20, v, bstyle, maxWidth + t.style.padding * 2, 20)
         button.callback = function()
             t:select(i)
             t.panel.shown = false
         end
     end
 
-    t.button = parent:add("button", t.x, t.y, choices[1])
+    t.button = parent:add("button", t.x, t.y, choices[1], t.style, maxWidth)
     t.button.width = t.button.width + t.button.height
     t.button.callback = function()
         t.panel.shown = not t.panel.shown
