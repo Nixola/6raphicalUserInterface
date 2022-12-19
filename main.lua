@@ -79,7 +79,7 @@ guiItems.textLine1 = gui:add("textLine", 100, 148, 96, guiItems.button2, "nick",
 guiItems.textLine2 = gui:add("textLine", 100, 172, 96, guiItems.button2, "pass", {rx = 2, ry = 2}, "Password")
 guiItems.textLine3 = gui:add("textLine", 100, 196, 96, guiItems.button2, "mail", {rx = 2, ry = 2}, "E-mail")
 
-guiItems.dropdown = gui:add("dropdown", 100, 220, {"Choice 1", "Choice 2", "Choice 3"})
+guiItems.dropdown = gui:add("dropdown", 100, 220, {"Choice 1", "Choice 2", "Long choice"})
 guiItems.dropdown.callback = print
 
 gui:add("slider", 600, 100, 16, 400, 1/16)
