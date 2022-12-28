@@ -1,100 +1,56 @@
 local Gui = require 'src'
-local gui = Gui()
+local styles = require "styles"
+local gui
 
-local text = ""
-local timer = 0
-local flash = function(txt)
-    text = txt
-    timer = 1
-end
 local font = require "src.utils".font
 
-local panel = gui:add("panel", 200, 100, 400, 400, {
-    bp = {
-        border = {
-            style = "smooth",
-            width = 1,
-            color = {7/8, 7/8, 7/8}
-        },
-        background = {2/8, 2/8, 2/8},
-        rx = 10,
-        ry = 10,
-        segments = 10
+love.graphics.setBackgroundColor(1/8, 1/8, 1/8)
+
+local res = {
+    text = {
+        warnings = {"This doesn't work.", "Please tell me those aren't real.", "Do you just give people your data?", "Don't do this.", "You know it says \"fake\", right?"},
     }
-})
+}
 
+love.load = function()
+    gui = Gui()
+    love.keyboard.setKeyRepeat(true)
 
-do
-    local p2 = function() end
-    togglePrint = function()
-        p2, print = print, p2
+    local panel = gui:add("panel", 32, 32, 250, 160, styles.panel)
+
+    panel:add("text", 0, 3, "Fake sign-up form", styles.title)
+
+    local margin = 30
+    local offset = 5
+    panel:add("text", 0, margin * 1, "E-mail:", styles("right", "100w"))
+    panel:add("text", 0, margin * 2, "Username:", styles("right", "100w"))
+    panel:add("text", 0, margin * 3, "Password:", styles("right", "100w"))
+    local warning = panel:add("text", 6, 140, "", styles.warning)
+    local button = panel:add("button", 173, 130, "Sign up", styles.rounded3px)
+    panel:add("textLine", 106, margin * 1 - offset, 120, button, "nick", styles.rounded2px)
+    panel:add("textLine", 106, margin * 2 - offset, 120, button, "pass", styles.rounded2px)
+    panel:add("textLine", 106, margin * 3 - offset, 120, button, "mail", styles.rounded2px)
+    button.callback = function(children)
+        if not (#children.nick.text > 0 and #children.pass.text > 0 and #children.mail.text > 0) then return end
+        children.nick:clear()
+        children.pass:clear()
+        children.mail:clear()
+        local n
+        repeat
+            n = love.math.random(#res.text.warnings)
+        until
+            res.text.warnings[n] ~= warning.text
+        warning.text = res.text.warnings[n]
     end
 end
 
-local panelItems = {}
-local guiItems = {}
-
-panelItems.button1 = panel:add("button", 16, 10, "THING")
-panelItems.button1.callback = function(children) flash(children.thing.text) end
-
-panelItems.button2 = panel:add("button", 16, 450, "AAAA")
-panelItems.button2.callback = function() flash("wat") end
-
-panelItems.textLine1 = panel:add("textLine", 16, 30, 96, panelItems.button1, "thing")
-
-panelItems.textLine2 = panel:add("textLine", 16, 50, 96, panelItems.button1, "thang")
-
-panelItems.textLine3 = panel:add("textLine", 16, 70, 96, panelItems.button1, "thong")
-
-
-guiItems.button1 = gui:add("button", 100, 100, "TEST")
-guiItems.button1.callback = function() flash("first button") end
-
-guiItems.button2 = gui:add("button", 100, 124, "TEST", {
-    padding = 3,
-    border = {
-        style = "smooth",
-        width = 1,
-        color = {7/8, 7/8, 7/8}
-    },
-    text = {
-        size = 12,
-        color = {1, 1, 1}
-    },
-    idle = {2/8, 2/8, 2/8},
-    hover = {3/8, 3/8, 3/8},
-    active = {4/8, 4/8, 4/8},
-    clicked = {5/8, 5/8, 5/8},
-    rx = 3,
-    ry = 3
-})
-guiItems.button2.callback = function(children)
-    print("Firing", children.nick.text, children.pass.text, children.mail.text)
-    children.nick:clear()
-    children.pass:clear()
-    children.mail:clear()
-end
-
-guiItems.textLine1 = gui:add("textLine", 100, 148, 96, guiItems.button2, "nick", {rx = 2, ry = 2}, "Nickname")
-guiItems.textLine2 = gui:add("textLine", 100, 172, 96, guiItems.button2, "pass", {rx = 2, ry = 2}, "Password")
-guiItems.textLine3 = gui:add("textLine", 100, 196, 96, guiItems.button2, "mail", {rx = 2, ry = 2}, "E-mail")
-
-guiItems.dropdown = gui:add("dropdown", 100, 220, {"Choice 1", "Choice 2", "Long choice"})
-guiItems.dropdown.callback = print
-
-gui:add("slider", 600, 100, 16, 400, 1/16)
-
 love.update = function(dt)
     gui:update(dt)
-    timer = math.max(timer - dt, 0)
 end
 
 love.draw = function()
     love.graphics.setColor(1,1,1,1)
     gui:draw()
-    love.graphics.setColor(1,1,1, timer^5)
-    love.graphics.setFont(font[72])
-    love.graphics.printf(text, 0, 200, 800, "center")
 end
 
 love.mousepressed = function(x, y, b)
@@ -115,15 +71,8 @@ end
 
 love.keypressed = function(key, keycode, isRepeat)
     gui:keypressed(key, keycode, isRepeat)
-    --[[if key == "d" then
-        togglePrint()
-    end--]]
 end
 
 love.keyreleased = function(key, keycode, isRepeat)
     gui:keyreleased(key, keycode, isRepeat)
-end
-
-love.load = function()
-    love.keyboard.setKeyRepeat(true)
 end
