@@ -34,3 +34,6 @@ end
 * Add sliders
 * Add checkboxes
 * Update panels to be scrollable (and automatically create and employ a slider or two if needed)
+* Update dropdowns to be able to set a maximum height, beyond which elements should be scrollable
+* _fix focus_
+* * Clicking outside a panel in the current demo state acts as tab inside the panel
