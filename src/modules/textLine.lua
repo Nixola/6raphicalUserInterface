@@ -186,8 +186,9 @@ textLine.textinput = function(self, text)
         utils.utf8.sub(self.text, 1, self.cursor),
         text,
         utils.utf8.sub(self.text, self.cursor + 1, utf8.len(self.text)))
+    
     if (not self.validate) or self.validate(newText) then
-        self.text = self.validate(newText)
+        self.text = self.validate and self.validate(newText) or newText
         self.cursor = self.cursor + utf8.len(text)
     end
 end
