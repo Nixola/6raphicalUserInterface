@@ -332,6 +332,7 @@ gui.add = function(self, moduleName, ...)
     local newItem = module:new(self, ...)
 
     self.items[#self.items + 1] = newItem
+    newItem.parentGui = self
     newItem.managed = true
 
     if self.scroll then
